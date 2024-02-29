@@ -276,7 +276,7 @@ input:placeholder {
 
 .content {
     padding: 8px;
-    background-color: rgba(var(--accent), 0.15);
+    background-color: rgba(var(--accent), 0.14);
     border-radius: var(--rad2);
 }
 
@@ -411,9 +411,9 @@ a:active {
 }
 
 .list {
-    padding: 7px;
+    padding: 7px 10px;
     border-radius: 7px;
-    background-color: rgba(var(--accent), 0.3);
+    background-color: rgba(var(--accent), 0.22);
     width: 100%;
     box-sizing: border-box;
     text-align: center;
