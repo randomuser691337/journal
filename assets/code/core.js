@@ -1,53 +1,111 @@
-// yes, most of this code is from WebDesk
-var text = document.getElementById('textbox');
-function mkw(content, title, width, m, height, btnid) {
-    const windowId = gen(6);
-    const windowContainer = document.createElement('div');
-    windowContainer.className = 'centerw';
-    windowContainer.id = windowId;
-    windowContainer.style.display = "block";
-    windowContainer.style.zIndex = 2;
-    windowContainer.style.width = width;
-    if (height) {
-        windowContainer.style.height = height;
+function auth(divToAddTo, returnFunction) {
+    const container = document.getElementById(divToAddTo);
+    if (!container) {
+        console.error('The specified div does not exist');
+        return;
     }
-    const titleBar = document.createElement('div');
-    titleBar.className = 'content';
-    if (btnid) {
-        titleBar.innerHTML = title + ` <button class="winb wc" onclick="dest('${windowId}');" id="${btnid}">Close</button>`;
-    } else {
-        titleBar.innerHTML = title + ` <button class="winb wc" onclick="dest('${windowId}');">Close</button>`;
+
+    const pinDisplay = document.createElement('input');
+    pinDisplay.setAttribute('type', 'password');
+    pinDisplay.setAttribute('readonly', 'true');
+    pinDisplay.setAttribute('maxlength', '6');
+    pinDisplay.setAttribute('placeholder', 'Enter PIN');
+    pinDisplay.setAttribute('style', 'display:inline; margin-bottom:10px; font-size:20px; text-align:center; width:100%; box-sizing: border-box;');
+    const keypad = document.createElement('div');
+    keypad.setAttribute('style', 'display:grid inline; grid-template-columns:repeat(3, 1fr); gap:2px;');
+    let pin = '';
+
+    function updateDisplay() {
+        pinDisplay.value = pin;
+        if (pin.length === 6) {
+            setTimeout(() => {
+                returnFunction(pin);
+                pin = '';
+                updateDisplay();
+            }, 100);
+        }
     }
-    const contentContainer = titleBar;
-    contentContainer.innerHTML += content;
-    windowContainer.appendChild(titleBar);
-    windowContainer.appendChild(contentContainer);
-    if (m === "s") {
-        document.body.appendChild(windowContainer);
-    } else {
-        document.getElementById('nest').appendChild(windowContainer);
+
+    for (let i = 1; i <= 9; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.setAttribute('style', 'font-size:20px; padding:26px;');
+        button.addEventListener('click', () => {
+            if (pin.length < 6) {
+                pin += i;
+                updateDisplay();
+            }
+        });
+        keypad.appendChild(button);
     }
-    return windowId;
+
+    const zeroButton = document.createElement('button');
+    zeroButton.textContent = '0';
+    zeroButton.setAttribute('style', 'font-size:20px; padding:10px;');
+    zeroButton.addEventListener('click', () => {
+        if (pin.length < 6) {
+            pin += '0';
+            updateDisplay();
+        }
+    });
+    keypad.appendChild(zeroButton);
+
+    const clearButton = document.createElement('button');
+    clearButton.textContent = 'Clear';
+    clearButton.setAttribute('style', 'font-size:20px; padding:10px; grid-column:span 2;');
+    clearButton.addEventListener('click', () => {
+        pin = '';
+        updateDisplay();
+    });
+    keypad.appendChild(clearButton);
+    container.appendChild(pinDisplay);
+    container.appendChild(keypad);
 }
+
+auth('main', async function (pin) {
+    console.log('Entered PIN:', pin);
+    pass = pin;
+    await setupde(pin);
+    await writef('/user/entries.json', '');
+});
+
+auth('auth', async function (pin) {
+    console.log('Entered PIN 2:', pin);
+    const fuck = await chkp(pin);
+    if (fuck === true) {
+        fesw('auth', 'home');
+        await loadj();
+    }
+});
+
 function fesw(d1, d2) {
     const dr1 = document.getElementById(d1);
     const dr2 = document.getElementById(d2);
-    $(dr1).fadeOut(150, function () { $(dr2).fadeIn(150); });
+    $(dr1).fadeOut(130, function () { $(dr2).fadeIn(130); });
 }
-function hidef(d1) {
+
+function hidef(d1, anim) {
     const dr1 = document.getElementById(d1);
     if (dr1) {
-        $(dr1).fadeOut(150);
+        if (anim) {
+            $(dr1).fadeOut(anim);
+        } else {
+            $(dr1).fadeOut(150);
+        }
     }
 }
-function showf(d1) {
+
+function showf(d1, anim) {
     const dr1 = document.getElementById(d1);
-    $(dr1).fadeIn(150);
+    if (dr1) {
+        if (anim) {
+            $(dr1).fadeIn(anim);
+        } else {
+            $(dr1).fadeIn(150);
+        }
+    }
 }
-function dest(d1) {
-    const dr1 = document.getElementById(d1);
-    $(dr1).fadeOut(170, function () { dr1.remove(); });
-}
+
 function gen(length) {
     if (length <= 0) {
         console.error('Length should be greater than 0');
@@ -56,193 +114,76 @@ function gen(length) {
 
     const min = Math.pow(10, length - 1);
     const max = Math.pow(10, length) - 1;
-
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-function snack(cont, t) {
-    var snackElement = document.createElement("div");
-    snackElement.className = "snack";
-    const fuckyou = gen(7);
-    snackElement.id = fuckyou;
-    snackElement.innerHTML = cont;
-    document.body.appendChild(snackElement);
-    snackElement.onclick = function () {
-        dest(fuckyou);
+
+function idk(val) {
+    document.getElementById('journalarea').value = val;
+    fesw('home', 'editor');
+}
+
+async function loadj() {
+    try {
+        document.getElementById('home2').innerHTML = "";
+        const fileData = await readf('/user/entries.json');
+        const jsonData = JSON.parse(fileData);
+        const entries = Object.entries(jsonData);
+        for (const [key, value] of entries) {
+            const buttonText = `${value.appn}`;
+            if (!fucker2(buttonText)) {
+                const button = document.createElement('button');
+                button.addEventListener('click', function () {
+                    idk(value.appc);
+                    cur = value.appn;
+                });
+                button.innerText = buttonText;
+                button.classList = "list";
+                document.getElementById('home2').appendChild(button);
+            }
+        }
+    } catch (error) {
+        console.log(`Error reading JSON file: ${error}`);
     }
-    setTimeout(function () { dest(fuckyou); }, t);
 }
-function changevar(varName, varValue) {
-    const root = document.documentElement;
-    root.style.setProperty(`--${varName}`, `${varValue}`);
-    writevar(varName, varValue);
-}
-async function setpass1(i1, i2) {
-    const id1 = document.getElementById(i1).value;
-    const id2 = document.getElementById(i2).value;
-    if (id1 === id2) {
-        pass = id2;
-        fesw('passfirst', 'journalmain');
-        await writevar('check', 'passed');
-        writepb('sd', 'y');
-    } else {
-        snack('Passswords do not match', '3000');
+
+async function adde(name, cont) {
+    try {
+        const existingData = await readf('/user/entries.json');
+        const jsonData = existingData ? JSON.parse(existingData) : {};
+        jsonData[name] = { appn: name, appc: cont };
+        const json = JSON.stringify(jsonData);
+        await writef('/user/entries.json', json);
+        await loadj();
+    } catch (error) {
+        console.log(`Error writing JSON file: ${error}`);
     }
 }
-async function checkpass(i1, act) {
-    const id1 = document.getElementById(i1).value;
-    if (id1) {
-        pass = id1;
-        const fuck = await readvar('check');
-        if (fuck === "passed") {
-            eval(act);
+
+async function dele(name) {
+    try {
+        const existingData = await readf('/user/entries.json');
+        const jsonData = JSON.parse(existingData);
+        if (jsonData.hasOwnProperty(name)) {
+            delete jsonData[name];
+            const json = JSON.stringify(jsonData);
+            await writef('/user/entries.json', json);
+            await loadj();
+        }
+    } catch (error) {
+        console.log(`<!> Error deleting app ${name}: ${error}`);
+    }
+}
+
+function fucker2(text, byebye) {
+    const buttons = document.querySelectorAll('#home button');
+    for (const button of buttons) {
+        if (button.innerText === text) {
+            if (byebye === "yes") {
+                button.remove();
+            } else {
+                return true;
+            }
         }
     }
-}
-async function appear(mode) {
-    if (mode === "l") {
-        changevar('background', '#fff');
-        changevar('lightdark', '#fff');
-        changevar('lightdarkb', '#F0F0F0');
-        changevar('fontc', '#000');
-        changevar('fontc2', "#333");
-        changevar('bordercolor', "#DFDFDF");
-        await writevar('appear', 'l');
-    } else {
-        changevar('background', '#000');
-        changevar('lightdark', '#1a1a1a');
-        changevar('lightdarkb', '#2a2a2a');
-        changevar('fontc', '#fff');
-        changevar('fontc2', "#aaa");
-        changevar('bordercolor', "#3a3a3a");
-        await writevar('appear', 'd');
-    }
-}
-function chacc(clr1) {
-    changevar('accent', clr1);
-}
-function chacc2(ye) {
-    const ye2 = document.getElementById(ye).value;
-    chacc(ye2);
-}
-var valuesToCheck = [".txt"];
-window.updatepageList = async function () {
-    const pageList = document.getElementById('pages');
-    pageList.innerHTML = ''; // Clear existing list
-
-    // Read all variables with name starting with 'page_'
-    const db = await initDB();
-    const transaction = db.transaction('settings', 'readonly');
-    const objectStore = transaction.objectStore('settings');
-    const request = objectStore.getAllKeys();
-
-    request.onsuccess = async (event) => {
-        const keys = event.target.result;
-        keys.forEach(key => {
-            if (key.startsWith('page_')) {
-                const fileName = key.slice(5); // Remove 'page_' prefix
-                const listItem = document.createElement('div');
-                listItem.textContent = fileName;
-                listItem.className = "list";
-                let found = valuesToCheck.find(value => key.includes(value));
-                const viewBtn = document.createElement('button');
-                if (found === ".txt") {
-                    viewBtn.textContent = "View";
-                    viewBtn.className = "winb";
-                    viewBtn.addEventListener('click', async () => {
-                        const content = await readvar(key);
-                        current = key;
-                        openj(content, fileName);
-                    });
-                } else {
-                    viewBtn.textContent = "you little shit";
-                }
-
-                const downloadButton = document.createElement('button');
-                downloadButton.textContent = "Grab";
-                downloadButton.className = "winb";
-                downloadButton.addEventListener('click', async () => {
-                    const content = await readvar(key);
-                    const a = document.createElement('a');
-                    a.href = content;
-                    a.download = fileName;
-                    a.click();
-                    snack('Started file download!', '2500');
-                });
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = "Delete";
-                deleteButton.className = "winb";
-                deleteButton.addEventListener('click', () => {
-                    listItem.parentNode.removeChild(listItem);
-                    delvar(key);
-                    snack('Deleted file successfully!', '2500');
-                });
-
-                const renButton = document.createElement('button');
-                renButton.textContent = "Rename";
-                renButton.className = "winb";
-                renButton.addEventListener('click', () => {
-                    const boxId = gen(7);
-                    const win = `<p>Enter a name that isn't already used, filenames are not encrypted!</p>
-                    <input class="i1" id="${boxId}" placeholder="Name here"/><button class="b1" onclick="renpage('${key}', '${boxId}');$(this).parent().parent().fadeOut('150', function() {$(this).remove();});">Rename</button>`;
-                    mkw(win, 'page - Rename', '300px');
-                });
-
-                const p = document.createElement('p');
-
-                // Add both buttons to the list item
-                listItem.appendChild(p);
-                p.appendChild(downloadButton);
-                p.appendChild(viewBtn);
-                p.appendChild(deleteButton);
-                p.appendChild(renButton);
-                pageList.appendChild(listItem);
-            }
-        });
-    };
-
-    request.onerror = (event) => {
-        console.error("[ERR] Error fetching page variables: " + event.target.errorCode);
-    };
-};
-
-async function renpage(name, box) {
-    const inputValue = document.getElementById(box).value;
-    const sillyExtension = valuesToCheck.find(ext => name.endsWith(ext));
-    if (sillyExtension) {
-        const newName = `${inputValue}${sillyExtension}`;
-        await renvar(name, `page_${newName}`);
-    } else {
-        await renvar(name, `page_${inputValue}`);
-    }
-    await window.updatepageList();
-    snack(`Renamed to ${inputValue} successfully`, '3500');
-}
-
-function makepg(id) {
-    const i = document.getElementById(id).value;
-    if (i) {
-        const ok = `page_${i}.txt`;
-        const name = ok.slice(5);
-        current = ok;
-        writevar(ok, '');
-        openj('', name);
-        fesw('journalmake', 'journalmain');
-    }
-}
-async function openj(cont, name) {
-    text.value = cont;
-    document.getElementById('name').innerHTML = name;
-    showf('menubar');showf('textbox');
-}
-async function closej() {
-    document.getElementById('name').innerHTML = "";
-    await writevar(current, text.value);
-    hidef('menubar');hidef('textbox');
-    text.innerText = "";
-}
-async function closejn() {
-    document.getElementById('name').innerHTML = "";
-    hidef('menubar');hidef('textbox');
-    text.innerText = "";
+    return false;
 }

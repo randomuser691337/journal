@@ -1,123 +1,80 @@
 <!DOCTYPE html>
-<html>
 
 <head>
+    <title>Journal</title>
     <link rel="stylesheet" href="./assets/core.css">
+    </link>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="./favi.png">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Journal">
+    <link rel="apple-touch-icon" href="./favi.png">
+    <meta name="theme-color" content="#000000">
     <script>
-        var ver = "0.0.2";
-        var lastedit = "Feb 29, 2024";
-        var crashed = false;
-        var mostrecerr = "No history."
-        var locked = true;
-        var loaded = false;
-        var abs = true;
-        var gfx = true;
-        var wcur = true;
-        var current = ""; // for the current name of journal (page)
-        console.log(`%c /\\_/\\  Journal ${ver}
-%c( o.o ) Edited ${lastedit}
-%c > ^ <  randomuser691337`, 'color: orange', 'color: orange', 'color: orange');
-        console.log(`<!> Do not paste anything here, as doing so may allow anyone full access to your Journal and it's password.`);
+        var dbn = 'JournalDB';
+        var cur;
     </script>
+    <script src="./assets/lib/enc.js"></script>
+    <script src="./assets/code/fs.js"></script>
+    <script src="./assets/lib/jq.js"></script>
 </head>
 
 <body>
-    <div class="fullbg" id="nest">
-        <div class="centerw" id="setup" style="width: 300px;">
-            <div class="content" id="passfirst">
-                <p>Enter a password for your Journal.</p>
-                <input class="i1" id="firstpass" placeholder="Journal password" type="password" />
-                <input class="i1" id="firstcon" placeholder="Confirm" type="password" />
-                <button class="b1" onclick="setpass1('firstpass', 'firstcon');">Set password!</button>
-            </div>
-            <div class="content hide" id="passenter">
-                <p>Enter password</p>
-                <input class="i1" id="password" type="password" placeholder="Journal password" />
-                <button class="b1" onclick="fesw('passenter', 'forgor');">I forgot</button><button class="b1"
-                    onclick="checkpass('password', 'boots2()');">Unlock</button>
-            </div>
-            <div class="content hide" id="forgor">
-                <p>If you forgot your Journal password, you'll need to erase Journal to use it again.</p>
-                <p>Note: All Journal data will be erased!</p>
-                <button class="b1" onclick="fesw('forgor', 'passenter');">Back</button><button class="b1"
-                    onclick="burnitall('justreload');">Erase</button>
-            </div>
-            <div class="content hide" id="journalmain">
-                <p class="h3">Journal</p>
-                <div id="pages" style="margin-bottom: 3px;"></div>
-                <button class="winb" onclick="fesw('journalmain', 'journalsettings');">Settings</button><button
-                    class="winb" onclick="fesw('journalmain', 'journalmake');">New page</button><button
-                    class="winb" onclick="lock();">Lock</button>
-            </div>
-            <div class="content hide" id="journalsettings">
-                <p class="h3">Settings</p>
-                <p>Appearance</p>
-                <button class="acb" style="background: rgb(210, 30, 30);" onclick="chacc('210, 30, 30');"></button>
-                <button class="acb" style="background: rgb(240, 125, 10);" onclick="chacc('240, 125, 10');"></button>
-                <button class="acb" style="background: rgb(210, 180, 20);" onclick="chacc('210, 180, 20');"></button>
-                <button class="acb" style="background: rgb(50, 160, 20);" onclick="chacc('50, 160, 20');"></button>
-                <button class="acb" style="background: rgb(40, 70, 235);" onclick="chacc('40, 70, 235');"></button>
-                <button class="acb" style="background: rgb(120, 60, 235);" onclick="chacc('120, 60, 235');"></button>
-                <button class="acb" style="background: rgb(180, 180, 180);" onclick="chacc('200, 200, 200');"></button>
-                <p style="margin-top: 2px;margin-bottom: 2px;"><button class="b1 light"
-                        onclick="appear('l');">Light</button><button style="margin-left: 3px;" class="b1 dark"
-                        onclick="appear();">Dark</button><button style="margin-left: 3px;" class="b1"
-                        onclick="appear();">Auto</button></p>
-                <p>0.0.2 - <button class="winb" onclick="fesw('journalsettings', 'journalmain');">Back</button></p>
-            </div>
-            <div class="content hide" id="journalmake">
-                <p class="h3">Make Page</p>
-                <input class="i1" id="silly" placeholder="Name of page" />
-                <button class="b1" onclick="fesw('journalmake', 'journalmain');">Back</button><button class="b1"
-                    onclick="makepg('silly');">Create!</button>
-            </div>
+    <div id="main">
+        <p class="h2">Welcome - 1/3</p>
+        <p>Enter an encryption PIN below. 6 digits required.</p>
+        <p>Note: If you forget this PIN, all entries are lost.</p>
+    </div>
+    <div id="backup" class="hide">
+        <p class="h2">Restore - 3/3</p>
+        <p>You can optionally restore from another Journal.</p>
+        <p>Your restore code is</p>
+    </div>
+    <div id="auth" class="hide">
+        <p class="h2">Locked</p>
+        <p>Enter your decryption PIN.</p>
+    </div>
+    <div id="home" class="hide">
+        <p class="h2">Journal</p>
+        <button class="b1" onclick="eraseall(true);">Erase Now</button><button class="b1" onclick="fesw('home', 'new');">New Entry</button>
+        <div id="home2"></div>
+    </div>
+    <div id="new" class="hide">
+        <p class="h2">New Entry</p>
+        <p>Name your creation.</p>
+        <input id="newi" placeholder="Name here"></input>
+        <button class="b1" onclick="fesw('new', 'home');">Back</button><button class="b1"
+            onclick="adde(document.getElementById('newi').value, '');fesw('new', 'home');">Create</button>
+    </div>
+    <div id="editor" class="hide">
+        <div id="menubar">
+            <img class="icon" src="./assets/img/x.svg" onclick="fesw('editor', 'home');"></img>
+            <img class="icon" src="./assets/img/save.svg"
+                onclick="fesw('editor', 'home');adde(cur, document.getElementById('journalarea').value);"></img>
+            <img class="icon" src="./assets/img/tr.svg" onclick="dele(cur);fesw('editor', 'home');"></img>
         </div>
-        <div id="journaling">
-            <div id="menubar" class="hide">
-                <div><button id="save" class="b1" onclick="closej();">Save</button><button id="save" class="b1"
-                        onclick="closejn();">Cancel</button></div>
-                <span id="name">Loading...</span>
-            </div>
-            <textarea id="textbox" class="hide"></textarea>
-        </div>
+        <textarea id="journalarea" rows="10"></textarea>
     </div>
 </body>
-<script src="./assets/code/enc.js"></script>
-<script src="./assets/code/idb.js"></script>
 <script src="./assets/code/core.js"></script>
-<script src="./assets/code/jq.js"></script>
 <script>
-    document.onreadystatechange = function () {
-        if (loaded === false) {
-            hidef('menubar');
-            loaded = true;
-            const sd = readpb('sd');
-            if (sd === "y") {
-                fesw('passfirst', 'passenter');
-                showf('setup');
-                setInterval(window.updatepageList, 2000);
-            } else {
-                showf('setup');
-            }
-        } else {
-            console.log('<!> Refusing to re-run beginning code.');
+    async function load() {
+        await initializeDB();
+        const fucker = await readf('/system/check');
+        if (fucker !== undefined) {
+            fesw('main', 'auth');
         }
     }
-    async function boots2() {
-        fesw('passenter', 'journalmain');
-        const acc = await readvar('accent');
-        const app = await readvar('appear');
-        if (acc) {
-            chacc(acc);
-        }
-        if (app === "l") {
-            appear('l');
-        }
+    $(document).ready(load);
+    function adjustTextareaRows() {
+        const menubarHeight = document.getElementById('menubar').offsetHeight;
+        const availableHeight = window.innerHeight - menubarHeight - 140;
+        const lineHeight = 16;
+        const rows = Math.floor(availableHeight / lineHeight);
+        document.getElementById('journalarea').rows = rows;
     }
-    function lock() {
-        window.location.reload();
-    }
-</script>
 
-</html>
+    window.addEventListener('resize', adjustTextareaRows);
+    window.addEventListener('load', adjustTextareaRows);
+</script>
