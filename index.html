@@ -21,15 +21,24 @@
 </head>
 
 <body>
-    <div id="main">
-        <p class="h2">Welcome - 1/3</p>
+    <div id="main" class="hide">
+        <p class="h2">Welcome - 1/1</p>
         <p>Enter an encryption PIN below. 6 digits required.</p>
         <p>Note: If you forget this PIN, all entries are lost.</p>
+    </div>
+    <div id="icons" class="hide">
+        <p class="h2">Learn your icons!</p>
+        <p>To make sure you don't destroy your documents, make sure you know what everything does in the editor.</p>
+        <p><img src="./assets/img/x.svg" class="smic"></img> - Close document</p>
+        <p><img src="./assets/img/save.svg" class="smic"></img> - Save document</p>
+        <p><img src="./assets/img/tr.svg" class="smic"></img> - Delete document</p>
+        <button class="b1" onclick="window.location.reload();">Got it!</button>
     </div>
     <div id="backup" class="hide">
         <p class="h2">Restore - 3/3</p>
         <p>You can optionally restore from another Journal.</p>
         <p>Your restore code is</p>
+        <p class="h2">----</p>
     </div>
     <div id="auth" class="hide">
         <p class="h2">Locked</p>
@@ -37,22 +46,50 @@
     </div>
     <div id="home" class="hide">
         <p class="h2">Journal</p>
-        <button class="b1" onclick="eraseall(true);">Erase Now</button><button class="b1" onclick="fesw('home', 'new');">New Entry</button>
+        <button class="b1" onclick="fesw('home', 'settings');">Settings</button><button class="b1"
+            onclick="fesw('home', 'new');" id="newe">New Entry</button><button class="b1"
+            onclick="window.location.reload();">Lock</button>
+        <input class="box" id="searchbox" placeholder="Search for entries" style="margin-bottom: 11px;"></input>
         <div id="home2"></div>
+    </div>
+    <div id="settings" class="hide">
+        <p class="h2">Settings</p>
+        <p><button class="b1" onclick="fesw('settings', 'erase');">Erase everything</button></p>
+        <p><button class="b1" onclick="fesw('settings', 'change');">Change PIN</button></p>
+        <p><button class="b1" onclick="lightm();">Light mode</button><button class="b1" onclick="darkm();">Dark
+                mode</button></p>
+        <p><button class="b1" onclick="fesw('settings', 'home');">Close</button></p>
+        <p style="color: #999 !important; font-size: 14px;">v2 - May 24, 2024</p>
+    </div>
+    <div id="erase" class="hide">
+        <p class="h2">Are you sure?</p>
+        <p>You will lose all entries, forever!</p>
+        <button class="b1" onclick="eraseall(true);">Erase everything</button><button class="b1"
+            onclick="fesw('erase', 'settings');">Cancel</button>
+    </div>
+    <div id="change" class="hide">
+        <p class="h2">Change PIN</p>
+        <p>Enter a new PIN, you will not be able to reconfirm so type carefully.</p>
+        <div id="changebox"></div>
+        <button class="b1" onclick="fesw('change', 'settings');">Cancel</button>
     </div>
     <div id="new" class="hide">
         <p class="h2">New Entry</p>
         <p>Name your creation.</p>
-        <input id="newi" placeholder="Name here"></input>
-        <button class="b1" onclick="fesw('new', 'home');">Back</button><button class="b1"
-            onclick="adde(document.getElementById('newi').value, '');fesw('new', 'home');">Create</button>
+        <p>Make sure it's not named the same thing as another entry, or else it will be overwritten!</p>
+        <input id="newi" class="box" placeholder="Name here" style="margin-top: 7px;"></input>
+        <p><button class="b1" onclick="fesw('new', 'home');">Back</button><button class="b1"
+                onclick="adde(document.getElementById('newi').value, '');fesw('new', 'home');">Create</button></p>
     </div>
     <div id="editor" class="hide">
         <div id="menubar">
-            <img class="icon" src="./assets/img/x.svg" onclick="fesw('editor', 'home');"></img>
-            <img class="icon" src="./assets/img/save.svg"
-                onclick="fesw('editor', 'home');adde(cur, document.getElementById('journalarea').value);"></img>
-            <img class="icon" src="./assets/img/tr.svg" onclick="dele(cur);fesw('editor', 'home');"></img>
+            <div class="tnav">
+                <img class="icon" src="./assets/img/x.svg" onclick="fesw('editor', 'home');"></img>
+                <img class="icon" src="./assets/img/save.svg"
+                    onclick="fesw('editor', 'home');adde(cur, document.getElementById('journalarea').value);"></img>
+                <img class="icon" src="./assets/img/tr.svg" onclick="dele(cur);fesw('editor', 'home');"></img>
+            </div>
+            <div class="title"><span id="jtext" style="background-color: var(--main);">Document</span></div>
         </div>
         <textarea id="journalarea" rows="10"></textarea>
     </div>
@@ -63,14 +100,19 @@
         await initializeDB();
         const fucker = await readf('/system/check');
         if (fucker !== undefined) {
-            fesw('main', 'auth');
+            showf('auth');
+            const fucker2 = await readf('/user/appear');
+            if (fucker2 !== undefined) {
+                lightm();
+            }
+        } else {
+            showf('main');
         }
     }
     $(document).ready(load);
     function adjustTextareaRows() {
-        const menubarHeight = document.getElementById('menubar').offsetHeight;
-        const availableHeight = window.innerHeight - menubarHeight - 140;
-        const lineHeight = 16;
+        const availableHeight = window.innerHeight - 60;
+        const lineHeight = 24;
         const rows = Math.floor(availableHeight / lineHeight);
         document.getElementById('journalarea').rows = rows;
     }

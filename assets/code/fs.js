@@ -97,7 +97,7 @@ async function eraseall(reb) {
   await erasepb();
   await objectStore.clear();
   if (reb) {
-    reboot(400);
+    window.location.reload();
   }
 }
 
@@ -125,14 +125,6 @@ function renf(name, newName) {
   };
 }
 
-async function setupde(pass2) {
-  pass = pass2;
-  const imlazy = `key${gen(16)}`;
-  await writef('/system/enckey', imlazy);
-  pass = imlazy;
-  writef('/system/check', 'DontModifyOrYouWillLoseData');
-}
-
 async function chkp(pass2) {
   pass = pass2;
   const key = await readf('/system/enckey');
@@ -147,4 +139,26 @@ async function chkp(pass2) {
   } else {
     return "missing";
   }
+}
+
+async function setupde(pass2) {
+  pass = pass2;
+  const imlazy = `key${gen(16)}`;
+  await writef('/system/enckey', imlazy);
+  pass = imlazy;
+  writef('/system/check', 'DontModifyOrYouWillLoseData');
+}
+
+async function changepass(newp) {
+  const currentPass = pass;
+  pass = newp;
+  try {
+    await writef('/system/enckey', currentPass);
+  } catch (error) {
+    console.error("Failed to update encryption key:", error);
+    pass = currentPass;
+    return;
+  }
+  
+  setTimeout(reboot, 3000);
 }

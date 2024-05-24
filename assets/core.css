@@ -1,14 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+:root {
+    --pure: #000;
+    --main: #111;
+    --font: #fff;
+    --secm: #222;
+    --icon: 0;
+}
+
 * {
-    background-color: #000;
-    color: #fff !important;
+    background-color: var(--pure);
+    color: var(--font) !important;
 }
 
 button {
     border: none;
     font-family: "Roboto", sans-serif;
-    font-weight: 700;
+    font-weight: 500;
     font-style: normal;
     cursor: pointer;
     font-size: 18px;
@@ -16,7 +24,7 @@ button {
 
 body {
     font-family: "Roboto", sans-serif;
-    font-weight: 500;
+    font-weight: 400;
     font-style: normal;
     padding: 15px;
     font-size: 18px;
@@ -45,7 +53,7 @@ input {
     font-family: "Roboto", sans-serif;
     font-weight: 700;
     font-style: normal;
-    margin-top: 20px;
+    text-align: center !important;
     padding: 5px;
 }
 
@@ -53,8 +61,9 @@ input {
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
-    border: 1px solid #222222;
+    border: 1px solid var(--secm);
     border-radius: 10px;
+    font-size: 16px;
     margin-bottom: 3px;
 }
 
@@ -62,21 +71,37 @@ input {
     width: 100%;
     border-radius: 10px;
     box-sizing: border-box;
-    background-color: #111111;
+    background-color: var(--main);
     padding: 6px;
     margin-bottom: 4px;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.title {
+    flex-grow: 1;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 7px;
+    background-color: var(--main);
+}
+
+.tnav {
+    background-color: var(--main);
+    display: flex;
 }
 
 #journalarea {
     width: 100%;
-    min-width: 100% !important;
-    max-width: 100% !important;
     box-sizing: border-box;
     border-radius: 8px;
-    border: 2px solid #191919;
-    font-size: 14px;
+    border: 3px solid var(--secm);
+    font-size: 16px;
     padding: 4px;
+    resize: both;
 }
 
 .b1 {
@@ -88,7 +113,26 @@ input {
     border: none;
     width: 40px;
     height: 40px;
-    background-color: #111111;
+    background-color: var(--main);
     vertical-align: middle;
     cursor: pointer;
+    filter: invert(var(--icon));
+}
+
+.smic {
+    vertical-align: middle;
+    filter: invert(var(--icon));
+}
+
+.box {
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+img {
+    background-color: transparent !important;
 }
