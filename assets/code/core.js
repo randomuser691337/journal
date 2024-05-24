@@ -10,7 +10,7 @@ function auth(divToAddTo, returnFunction) {
     pinDisplay.setAttribute('readonly', 'true');
     pinDisplay.setAttribute('maxlength', '6');
     pinDisplay.setAttribute('placeholder', 'Enter PIN');
-    pinDisplay.setAttribute('style', 'display:inline; margin-bottom:10px; font-size:20px; text-align:center; width:100%; box-sizing: border-box;');
+    pinDisplay.setAttribute('style', 'display:inline; margin-bottom:10px; font-size:20px; text-align:center; width:100%; box-sizing: border-box;margin-top: 20px;');
     const keypad = document.createElement('div');
     keypad.setAttribute('style', 'display:grid inline; grid-template-columns:repeat(3, 1fr); gap:2px;');
     let pin = '';
@@ -29,7 +29,7 @@ function auth(divToAddTo, returnFunction) {
     for (let i = 1; i <= 9; i++) {
         const button = document.createElement('button');
         button.textContent = i;
-        button.setAttribute('style', 'font-size:20px; padding:26px;');
+        button.setAttribute('style', 'font-size:20px; padding:30px;');
         button.addEventListener('click', () => {
             if (pin.length < 6) {
                 pin += i;
@@ -67,6 +67,8 @@ auth('main', async function (pin) {
     pass = pin;
     await setupde(pin);
     await writef('/user/entries.json', '');
+    fesw('main', 'icons');
+
 });
 
 auth('auth', async function (pin) {
@@ -77,6 +79,14 @@ auth('auth', async function (pin) {
         await loadj();
     }
 });
+
+auth('changebox', async function (pin) {
+    await changepass(pin);
+});
+
+function reboot() {
+    window.location.reload();
+}
 
 function fesw(d1, d2) {
     const dr1 = document.getElementById(d1);
@@ -107,19 +117,19 @@ function showf(d1, anim) {
 }
 
 function gen(length) {
-    if (length <= 0) {
-        console.error('Length should be greater than 0');
-        return null;
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        result += charset[randomIndex];
     }
-
-    const min = Math.pow(10, length - 1);
-    const max = Math.pow(10, length) - 1;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return result;
 }
 
 function idk(val) {
     document.getElementById('journalarea').value = val;
     fesw('home', 'editor');
+    document.getElementById('jtext').innerText = short(cur, 22);
 }
 
 async function loadj() {
@@ -128,13 +138,15 @@ async function loadj() {
         const fileData = await readf('/user/entries.json');
         const jsonData = JSON.parse(fileData);
         const entries = Object.entries(jsonData);
+        entries.sort((a, b) => new Date(b[1].appd) - new Date(a[1].appd));
+
         for (const [key, value] of entries) {
-            const buttonText = `${value.appn}`;
+            const buttonText = `${value.appn} - ${value.appd}`;
             if (!fucker2(buttonText)) {
                 const button = document.createElement('button');
                 button.addEventListener('click', function () {
-                    idk(value.appc);
                     cur = value.appn;
+                    idk(value.appc);
                 });
                 button.innerText = buttonText;
                 button.classList = "list";
@@ -150,7 +162,7 @@ async function adde(name, cont) {
     try {
         const existingData = await readf('/user/entries.json');
         const jsonData = existingData ? JSON.parse(existingData) : {};
-        jsonData[name] = { appn: name, appc: cont };
+        jsonData[name] = { appn: name, appc: cont, appd: getdate() };
         const json = JSON.stringify(jsonData);
         await writef('/user/entries.json', json);
         await loadj();
@@ -174,6 +186,15 @@ async function dele(name) {
     }
 }
 
+function getdate() {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentDate = new Date();
+    const month = months[currentDate.getMonth()];
+    const day = currentDate.getDate();
+    const year = currentDate.getFullYear();
+    return (`${month} ${day}, ${year}`);
+}
+
 function fucker2(text, byebye) {
     const buttons = document.querySelectorAll('#home button');
     for (const button of buttons) {
@@ -186,4 +207,60 @@ function fucker2(text, byebye) {
         }
     }
     return false;
+}
+
+function cv(varName, varValue) {
+    const root = document.documentElement;
+    root.style.setProperty(`--${varName}`, `${varValue}`);
+}
+
+function short(inputString, size) {
+    if (inputString.length <= size) {
+        return inputString;
+    } else {
+        return inputString.slice(0, size - 3) + '...';
+    }
+}
+
+async function lightm() {
+    cv('main', '#ddd');
+    cv('pure', '#fff');
+    cv('font', '#000');
+    cv('secm', '#ccc')
+    cv('icon', '1');
+    await writef('/user/appear', 'l');
+}
+
+async function darkm() {
+    cv('main', '#111');
+    cv('pure', '#000');
+    cv('font', '#fff');
+    cv('secm', '#222');
+    cv('icon', '0');
+    await delf('/user/appear');
+}
+
+document.getElementById('searchbox').addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    const buttons = document.querySelectorAll('#home2 button');
+
+    buttons.forEach(button => {
+        if (button.textContent.toLowerCase().includes(query)) {
+            button.classList.remove('hide');
+        } else {
+            button.classList.add('hide');
+        }
+    });
+});
+
+function isIos() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isInStandaloneMode() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+}
+
+if (isIos() && isInStandaloneMode()) {
+    document.body.style.paddingTop = '0px';
 }
