@@ -14,31 +14,38 @@
     <script>
         var dbn = 'JournalDB';
         var cur;
+        var sdone = false;
+        var imoved = false;
     </script>
     <script src="./assets/lib/enc.js"></script>
     <script src="./assets/code/fs.js"></script>
+    <script src="./assets/code/move.js"></script>
     <script src="./assets/lib/jq.js"></script>
+    <script src="./assets/lib/jszip.js"></script>
+    <script src="./assets/lib/peer.js"></script>
 </head>
 
 <body>
     <div id="main" class="hide">
-        <p class="h2">Welcome - 1/1</p>
+        <p class="h2">Welcome - 1/3</p>
         <p>Enter an encryption PIN below. 6 digits required.</p>
         <p>Note: If you forget this PIN, all entries are lost.</p>
     </div>
     <div id="icons" class="hide">
-        <p class="h2">Learn your icons!</p>
+        <p class="h2">Learn your icons - 2/3</p>
         <p>To make sure you don't destroy your documents, make sure you know what everything does in the editor.</p>
         <p><img src="./assets/img/x.svg" class="smic"></img> - Close document</p>
         <p><img src="./assets/img/save.svg" class="smic"></img> - Save document</p>
         <p><img src="./assets/img/tr.svg" class="smic"></img> - Delete document</p>
-        <button class="b1" onclick="window.location.reload();">Got it!</button>
+        <button class="b1" onclick="fesw('icons', 'backup');">Got it!</button>
     </div>
     <div id="backup" class="hide">
-        <p class="h2">Restore - 3/3</p>
-        <p>You can optionally restore from another Journal.</p>
-        <p>Your restore code is</p>
-        <p class="h2">----</p>
+        <p class="h2">Transfer - 3/3</p>
+        <p>You can optionally transfer from another Journal.</p>
+        <p>Your transfer code is</p>
+        <p class="h2 mcode">---</p>
+        <p>Note: For security, you can only do this now.</p>
+        <button class="b1" onclick="window.location.reload();" id="sillyb">I'll pass</button>
     </div>
     <div id="auth" class="hide">
         <p class="h2">Locked</p>
@@ -55,11 +62,30 @@
     <div id="settings" class="hide">
         <p class="h2">Settings</p>
         <p><button class="b1" onclick="fesw('settings', 'erase');">Erase everything</button></p>
+        <p><button class="b1" onclick="fesw('settings', 'move');">Transfer Journal</button></p>
         <p><button class="b1" onclick="fesw('settings', 'change');">Change PIN</button></p>
         <p><button class="b1" onclick="lightm();">Light mode</button><button class="b1" onclick="darkm();">Dark
                 mode</button></p>
         <p><button class="b1" onclick="fesw('settings', 'home');">Close</button></p>
-        <p style="color: #999 !important; font-size: 14px;">v2 - May 24, 2024</p>
+        <p style="color: #999 !important; font-size: 14px;">v3 - May 26, 2024</p>
+    </div>
+    <div id="move" class="hide">
+        <p class="h2">Transfer</p>
+        <p>Only one device can use the same Journal at a time.</p>
+        <p>This will transfer your Journal to another device, but you can transfer it back anytime.</p>     
+        <p>If you're ready, enter the other Journal's transfer code below.</p>   
+        <div id="movebox"></div>
+        <button class="b1" onclick="fesw('move', 'settings');">Cancel</button>
+    </div>
+    <div id="good" class="hide">
+        <p class="h2">Transfer Success</p>
+        <p>The other Journal has your entries now.</p>
+        <p>For security, this Journal has been erased.</p>
+        <p>You can transfer back at any time.</p>
+        <p>Note: It's not recommended to start a new Journal if you have another actively in use.</p>
+        <p>-</p>
+        <button class="b1" onclick="eraseall(true);">Transfer from another Journal</button>
+        <button class="b1" onclick="eraseall(true);">Start a new Journal</button>
     </div>
     <div id="erase" class="hide">
         <p class="h2">Are you sure?</p>
@@ -98,9 +124,14 @@
 <script>
     async function load() {
         await initializeDB();
+        const ok = await readf('/system/migrate');
+        if (ok !== undefined) {
+            fesw('main', 'good');
+            return;
+        }
         const fucker = await readf('/system/check');
         if (fucker !== undefined) {
-            showf('auth');
+            showf('auth'); sdone = true;
             const fucker2 = await readf('/user/appear');
             if (fucker2 !== undefined) {
                 lightm();
@@ -108,10 +139,11 @@
         } else {
             showf('main');
         }
+        dserv(gen(6));
     }
     $(document).ready(load);
     function adjustTextareaRows() {
-        const availableHeight = window.innerHeight - 60;
+        const availableHeight = window.innerHeight - 50;
         const lineHeight = 24;
         const rows = Math.floor(availableHeight / lineHeight);
         document.getElementById('journalarea').rows = rows;

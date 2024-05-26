@@ -10,7 +10,7 @@ function auth(divToAddTo, returnFunction) {
     pinDisplay.setAttribute('readonly', 'true');
     pinDisplay.setAttribute('maxlength', '6');
     pinDisplay.setAttribute('placeholder', 'Enter PIN');
-    pinDisplay.setAttribute('style', 'display:inline; margin-bottom:10px; font-size:20px; text-align:center; width:100%; box-sizing: border-box;margin-top: 20px;');
+    pinDisplay.setAttribute('style', 'display:inline; font-size:20px; text-align:center; width:100%; box-sizing: border-box; margin-top: 6vw;');
     const keypad = document.createElement('div');
     keypad.setAttribute('style', 'display:grid inline; grid-template-columns:repeat(3, 1fr); gap:2px;');
     let pin = '';
@@ -29,7 +29,7 @@ function auth(divToAddTo, returnFunction) {
     for (let i = 1; i <= 9; i++) {
         const button = document.createElement('button');
         button.textContent = i;
-        button.setAttribute('style', 'font-size:20px; padding:30px;');
+        button.setAttribute('style', 'font-size:25px; padding:10vw;');
         button.addEventListener('click', () => {
             if (pin.length < 6) {
                 pin += i;
@@ -41,7 +41,7 @@ function auth(divToAddTo, returnFunction) {
 
     const zeroButton = document.createElement('button');
     zeroButton.textContent = '0';
-    zeroButton.setAttribute('style', 'font-size:20px; padding:10px;');
+    zeroButton.setAttribute('style', 'font-size:25px; padding:10vw;');
     zeroButton.addEventListener('click', () => {
         if (pin.length < 6) {
             pin += '0';
@@ -52,7 +52,7 @@ function auth(divToAddTo, returnFunction) {
 
     const clearButton = document.createElement('button');
     clearButton.textContent = 'Clear';
-    clearButton.setAttribute('style', 'font-size:20px; padding:10px; grid-column:span 2;');
+    clearButton.setAttribute('style', 'font-size:25px; padding:10vw; grid-column:span 2;');
     clearButton.addEventListener('click', () => {
         pin = '';
         updateDisplay();
@@ -84,6 +84,12 @@ auth('changebox', async function (pin) {
     await changepass(pin);
 });
 
+auth('movebox', async function (pin) {
+    const b = await compressfs();
+    imoved = true;
+    custf(pin, 'movebox', b);
+});
+
 function reboot() {
     window.location.reload();
 }
@@ -92,6 +98,23 @@ function fesw(d1, d2) {
     const dr1 = document.getElementById(d1);
     const dr2 = document.getElementById(d2);
     $(dr1).fadeOut(130, function () { $(dr2).fadeIn(130); });
+}
+
+async function gens(length) {
+    if (length <= 0) {
+        console.error('Length should be greater than 0');
+        return null;
+    }
+
+    const array = new Uint32Array(Math.ceil(length / 4));
+    window.crypto.getRandomValues(array);
+
+    let result = '';
+    for (let i = 0; i < array.length; i++) {
+        result += array[i].toString(16).padStart(8, '0');
+    }
+
+    return result.slice(0, length);
 }
 
 function hidef(d1, anim) {
@@ -117,13 +140,14 @@ function showf(d1, anim) {
 }
 
 function gen(length) {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        result += charset[randomIndex];
+    if (length <= 0) {
+        console.error('Length should be greater than 0');
+        return null;
     }
-    return result;
+
+    const min = Math.pow(10, length - 1);
+    const max = Math.pow(10, length) - 1;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function idk(val) {

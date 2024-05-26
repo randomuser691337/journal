@@ -143,7 +143,7 @@ async function chkp(pass2) {
 
 async function setupde(pass2) {
   pass = pass2;
-  const imlazy = `key${gen(16)}`;
+  const imlazy = `key${gens(256)}`;
   await writef('/system/enckey', imlazy);
   pass = imlazy;
   writef('/system/check', 'DontModifyOrYouWillLoseData');
